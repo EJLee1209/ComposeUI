@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.dldmswo1209.composebasic">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +15,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ComposeBasic"
         tools:targetApi="31">
+        <activity
+            android:name=".RowActivity"
+            android:exported="true"
+            android:label="@string/title_activity_row"
+            android:theme="@style/Theme.ComposeBasic">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ListActivity"
             android:exported="true"
