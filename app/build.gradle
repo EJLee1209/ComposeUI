@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlinx-serialization'
+
+
 }
 
 android {
@@ -60,4 +63,16 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+
+    // ktor 네트워크
+    implementation "io.ktor:ktor-client-core:1.6.3"
+    implementation "io.ktor:ktor-client-serialization:1.6.3"
+    implementation "io.ktor:ktor-client-logging:1.6.3"
+    implementation "io.ktor:ktor-client-gson:1.6.3"
+    implementation "io.ktor:ktor-client-android:1.6.3"
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1'
+
+    def lifecycle_version = "2.5.1"
+    // ViewModel utilities for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
 }

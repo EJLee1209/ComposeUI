@@ -6,18 +6,21 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,17 +29,23 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import com.dldmswo1209.composebasic.ui.theme.ComposeBasicTheme
+import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -51,12 +60,163 @@ class RowActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    ButtonsContainer()
+                    TextFieldTest()
                 }
             }
         }
     }
 }
+
+//value: TextFieldValue,
+//onValueChange: (TextFieldValue) -> Unit,
+//modifier: Modifier = Modifier,
+//enabled: Boolean = true,
+//readOnly: Boolean = false,
+//textStyle: TextStyle = LocalTextStyle.current,
+//label: @Composable (() -> Unit)? = null,
+//placeholder: @Composable (() -> Unit)? = null,
+//leadingIcon: @Composable (() -> Unit)? = null,
+//trailingIcon: @Composable (() -> Unit)? = null,
+//isError: Boolean = false,
+//visualTransformation: VisualTransformation = VisualTransformation.None,
+//keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+//keyboardActions: KeyboardActions = KeyboardActions(),
+//singleLine: Boolean = false,
+//maxLines: Int = Int.MAX_VALUE,
+//interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+//shape: Shape =
+//MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+//colors: TextFieldColors = TextFieldDefaults.textFieldColors()
+
+@Composable
+fun TextFieldTest(){
+    var userInput by remember { mutableStateOf(TextFieldValue()) }
+    var phoneNumberInput by remember { mutableStateOf(TextFieldValue()) }
+    var emailInput by remember { mutableStateOf(TextFieldValue()) }
+    var passwordInput by remember { mutableStateOf(TextFieldValue()) }
+    val shouldShowPassword = remember { mutableStateOf(false) }
+
+    val passwordRes: (Boolean) -> (Int) = {
+        if(it){
+            R.drawable.ic_baseline_visibility_24
+        }else{
+            R.drawable.ic_baseline_visibility_off_24
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = userInput,
+            onValueChange = { userInput = it },
+            label = { Text(text = "사용자 입력") },
+            placeholder = { Text(text = "작성해 주세요") },
+            singleLine = false,
+            maxLines = 2
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = phoneNumberInput,
+            onValueChange = { phoneNumberInput = it },
+            label = { Text(text = "전화번호") },
+            placeholder = { Text(text = "010-1234-1234") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
+
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = emailInput,
+            onValueChange = { emailInput = it },
+            label = { Text(text = "이메일 주소") },
+            placeholder = { Text(text = "이메일 주소를 입력해주세요") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = null) },
+            trailingIcon = { IconButton(onClick = { Log.d("testt", "TextFieldTest: 체크버튼 클릭")}) {
+                Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null)
+            } }
+//            trailingIcon = { Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null) }
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = passwordInput,
+            onValueChange = { passwordInput = it },
+            label = { Text(text = "패스워드") },
+            placeholder = { Text(text = "패스워드를 입력해주세요") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = null) },
+            trailingIcon = { IconButton(onClick = {
+                Log.d("testt", "TextFieldTest: 비밀번호 visible 버튼 클릭")
+                shouldShowPassword.value = !shouldShowPassword.value
+            }) {
+                Icon(painter = painterResource(id = passwordRes(shouldShowPassword.value)), contentDescription = null)
+            } },
+            visualTransformation = if(shouldShowPassword.value) VisualTransformation.None else PasswordVisualTransformation()
+//            trailingIcon = { Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null) }
+        )
+
+    }
+}
+
+@Composable
+fun MySnackBar(){
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    val buttonTitle : (SnackbarData?) -> String = { snackbarData ->
+        if(snackbarData != null) "스낵바 숨기기" else "스낵바 보여주기"
+    }
+    val buttonColor : (SnackbarData?) -> Color = { snackbarData ->
+        if(snackbarData != null) {
+            Color.Black
+        } else {
+            Color.Blue
+        }
+    }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ){
+        Button(
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = buttonColor(snackBarHostState.currentSnackbarData),
+                contentColor = Color.White
+            ),
+            onClick = {
+                Log.d("testt", "MySnackBar: 스낵바 버튼 클릭")
+                if(snackBarHostState.currentSnackbarData != null){
+                    Log.d("testt", "MySnackBar: 이미 스낵바가 있다.")
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    return@Button
+                }
+
+                coroutineScope.launch {
+                    snackBarHostState.showSnackbar(
+                        "오늘도 빡코딩",
+                        "확인",
+                        SnackbarDuration.Short
+                    ).let {
+                        when(it){
+                            SnackbarResult.Dismissed ->  Log.d("testt", "MySnackBar: 스낵바 닫아짐")
+                            SnackbarResult.ActionPerformed -> Log.d("testt", "MySnackBar: 스낵바 확인 버튼 클릭")
+                        }
+                    }
+            }
+        }) {
+            Text(buttonTitle(snackBarHostState.currentSnackbarData))
+        }
+
+        // 스낵바 보여지는 부분
+        SnackbarHost(hostState = snackBarHostState, modifier = Modifier.align(Alignment.BottomCenter))
+    }
+}
+
 
 // Row - 아이템을 가로로 나열할 때
 // arrangement : Row, Column 같은 요소들이 들어가는
@@ -542,11 +702,171 @@ fun Path.polygon(sides: Int, radius: Float, center: Offset){
     close()
 }
 
+//checked: Boolean, 체크 상태
+//onCheckedChange: ((Boolean) -> Unit)?, 체크 상태 변경 콜백
+//modifier: Modifier = Modifier,
+//enabled: Boolean = true,
+//interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+//colors: CheckboxColors = CheckboxDefaults.colors() 체크 박스 색
+
+@Composable
+fun CheckBoxContainer(){
+    // MutableState 객체를 선언하는 세가지 방법
+    val checkedStatusForFirst = remember { mutableStateOf(false) }
+//    var checkedStatusForSecond by remember { mutableStateOf(false) }
+//    val (checkedStatusForThird, setCheckedStatusForThird) = remember { mutableStateOf(false) }
+
+    val checkedStatusForSecond = remember { mutableStateOf(false) }
+    val checkedStatusForThird = remember { mutableStateOf(false) }
+
+    val checkedStatesArray = listOf(
+        checkedStatusForFirst,
+        checkedStatusForSecond,
+        checkedStatusForThird
+    )
+
+    val allBoxChecked: (Boolean) -> Unit = { isAllBoxChecked->
+        Log.d("testt", "isAllBoxChecked: ${isAllBoxChecked}")
+        checkedStatesArray.forEach { it.value = isAllBoxChecked }
+    }
+
+    val checkedStatusForFourth : Boolean = checkedStatesArray.all { it.value }
+
+    Column(
+        modifier = Modifier
+            .background(Color.White)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        CheckboxWithTitle("1번 확인 사항", checkedStatusForFirst)
+        CheckboxWithTitle("2번 확인 사항", checkedStatusForSecond)
+        CheckboxWithTitle("3번 확인 사항", checkedStatusForThird)
+
+//        Checkbox(
+//            checked = checkedStatusForSecond,
+//            onCheckedChange = { isChecked->
+//                Log.d("testt", "CheckBoxContainer: isChecked : ${isChecked}")
+//                checkedStatusForSecond = isChecked
+//            }
+//        )
+        Spacer(modifier = Modifier.height(10.dp))
+        AllAgreeCheckbox(title = "모두 동의", shouldChecked = checkedStatusForFourth, allBoxChecked)
+        Spacer(modifier = Modifier.height(10.dp))
+        MyCustomCheckBox(title = "커스텀 체크박스", withRipple = true) // 리플 있음
+        MyCustomCheckBox(title = "커스텀 체크박스", withRipple = false) // 리플 없음
+//        Checkbox(
+//            checked = checkedStatusForThird,
+//            onCheckedChange = { isChecked->
+//                Log.d("testt", "CheckBoxContainer: isChecked : ${isChecked}")
+//                setCheckedStatusForThird.invoke(isChecked)
+//            },
+//            colors = CheckboxDefaults.colors(
+//                checkedColor = Color.Red,
+//                uncheckedColor = Color(0xFFEF9A9A),
+//                checkmarkColor = Color.Yellow
+//            )
+//        )
+    }
+}
+
+@Composable
+fun CheckboxWithTitle(title: String, isCheckedState : MutableState<Boolean>){
+    Row(
+        modifier = Modifier
+//            .background(Color.Yellow)
+            .fillMaxWidth()
+            .padding(horizontal = 30.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = isCheckedState.value,
+            onCheckedChange = { isChecked->
+                Log.d("testt", "CheckBoxContainer: isChecked : ${isChecked}")
+                isCheckedState.value = isChecked
+            }
+        )
+        Text(text = title)
+    }
+}
+
+@Composable
+fun AllAgreeCheckbox(
+    title: String,
+    shouldChecked : Boolean,
+    allBoxChecked: (Boolean)->(Unit)
+){
+    Row(
+        modifier = Modifier
+//            .background(Color.Yellow)
+            .fillMaxWidth()
+            .padding(horizontal = 30.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = shouldChecked,
+            onCheckedChange = { isChecked->
+                Log.d("testt", "CheckBoxContainer: isChecked : ${isChecked}")
+                allBoxChecked(isChecked)
+            },
+            colors = CheckboxDefaults.colors(
+                checkedColor = Color.Red,
+                uncheckedColor = Color(0xFFEF9A9A),
+                checkmarkColor = Color.Yellow
+            )
+        )
+        Text(text = title)
+    }
+}
+@Composable
+fun MyCustomCheckBox(title: String, withRipple: Boolean = false){
+    var isCheckedState by remember { mutableStateOf(false) }
+
+    var rippleEffect = if(withRipple) rememberRipple(
+        radius = 20.dp,
+        color = Color.Blue
+    )  else null
+
+    Row(
+        modifier = Modifier
+//            .background(Color.Yellow)
+            .fillMaxWidth()
+            .padding(horizontal = 30.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(60.dp)
+                .padding(10.dp)
+                .clickable(
+                    indication = rippleEffect,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    Log.d("testt", "MyCustomCheckBox: 클릭됐다")
+                    isCheckedState = !isCheckedState
+                }
+        ){
+            Image(
+                painter = if(isCheckedState) painterResource(id = R.drawable.ic_checked) else painterResource(id = R.drawable.ic_unchecked),
+                contentDescription = null,
+            )
+        }
+
+
+        Text(text = title)
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
 fun MyPreView() {
     ComposeBasicTheme {
-        ButtonsContainer()
+        TextFieldTest()
     }
 }
